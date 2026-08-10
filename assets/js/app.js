@@ -77,12 +77,15 @@ function buildCarousel(shuffleMode){
   }
 
   const n = carouselPhotos.length;
+  // mobile uses the exact same 3D geometry as desktop, just uniformly scaled down —
+  // this keeps photos from overlapping (a proportional scale can't break spacing)
   const isMobile = window.innerWidth <= 640;
-  const radius = isMobile ? 145 : 460;
-  const sizeCycle = isMobile
-    ? [{w:66,h:87}, {w:48,h:63}, {w:57,h:75}, {w:42,h:56}]
-    : [{w:132,h:174}, {w:96,h:126}, {w:114,h:150}, {w:84,h:112}];
-  const yCycle = isMobile ? [-13,9,-4,16,-17,3] : [-26, 18, -8, 32, -34, 6];
+  const scale = isMobile ? 0.4 : 1;
+  const radius = 460 * scale;
+  const baseSizes = [{w:132,h:174}, {w:96,h:126}, {w:114,h:150}, {w:84,h:112}];
+  const sizeCycle = baseSizes.map(s=>({w:Math.round(s.w*scale), h:Math.round(s.h*scale)}));
+  const baseY = [-26, 18, -8, 32, -34, 6];
+  const yCycle = baseY.map(y=>Math.round(y*scale));
 
   ring.innerHTML = "";
   carouselPhotos.forEach((p,i)=>{
