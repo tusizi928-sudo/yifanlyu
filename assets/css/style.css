@@ -188,6 +188,13 @@ nav.main-nav a:hover{opacity:1;}
 }
 .chip:hover{border-color:var(--ink); color:var(--ink);}
 .chip.active{background:var(--ink); color:var(--bg); border-color:var(--ink);}
+.filters.collapsible{max-height:80px; overflow:hidden;}
+.filters-toggle{
+  display:block; width:fit-content; margin:0 auto 14px; padding:6px 16px;
+  border:1px solid var(--line); background:transparent; color:var(--ink-soft);
+  font-size:11px; letter-spacing:.06em; text-transform:uppercase; border-radius:999px; cursor:pointer;
+}
+.filters-toggle:hover{border-color:var(--ink); color:var(--ink);}
 
 /* ---------- Gallery: clean uniform grid ---------- */
 .gallery-bar{

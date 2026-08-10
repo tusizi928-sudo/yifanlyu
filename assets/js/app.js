@@ -176,11 +176,15 @@ window.addEventListener("resize", ()=>{
 const YEARS = ["2021","2022","2023","2024","2025","2026"];
 let activeYear = "all";
 let activeRegion = "all";
+let regionFiltersExpanded = false;
 
 function renderFilters(){
   const yearRow = document.getElementById("yearFilters");
   const regionRow = document.getElementById("regionFilters");
   yearRow.innerHTML = ""; regionRow.innerHTML = "";
+  regionRow.classList.remove("collapsible");
+  const oldToggle = document.getElementById("regionFiltersToggle");
+  if(oldToggle) oldToggle.remove();
 
   const mk = (label, active, fn)=>{
     const c = document.createElement("div");
@@ -205,6 +209,26 @@ function renderFilters(){
       const sample = pool.find(p=>p.region_cn===r);
       regionRow.appendChild(mk(LANG==="zh"?r:sample.region_en, activeRegion===r, ()=>{activeRegion=r;currentPage=1;renderFilters();renderGallery();}));
     });
+  }
+
+  // on mobile, a long region list can run to many rows — collapse it to a
+  // couple of lines with a toggle rather than pushing the gallery way down
+  if(window.innerWidth <= 640){
+    const fullHeight = regionRow.scrollHeight;
+    if(fullHeight > 90){
+      if(!regionFiltersExpanded) regionRow.classList.add("collapsible");
+      const toggle = document.createElement("button");
+      toggle.id = "regionFiltersToggle";
+      toggle.className = "filters-toggle";
+      toggle.textContent = regionFiltersExpanded
+        ? (LANG==="zh" ? "收起" : "Show less")
+        : (LANG==="zh" ? "更多地点" : "Show more");
+      toggle.addEventListener("click", ()=>{
+        regionFiltersExpanded = !regionFiltersExpanded;
+        renderFilters();
+      });
+      regionRow.insertAdjacentElement("afterend", toggle);
+    }
   }
 }
 
@@ -643,7 +667,8 @@ function setupMapZoom(){
 
   // initial view: a broad overview showing every pin at once, not zoomed into a
   // cluster — user can still scroll/drag/use +/- to zoom in on any region
-  if(mapEntries.length){
+  const applyInitialTransform = ()=>{
+    if(!mapEntries.length) return;
     const xs = mapEntries.map(e=>e.px), ys = mapEntries.map(e=>e.py);
     const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
     const pad = 110;
@@ -653,7 +678,13 @@ function setupMapZoom(){
     const cx = (minX+maxX)/2, cy = (minY+maxY)/2;
     const tx = MAP_W/2 - k*cx, ty = MAP_H/2 - k*cy;
     containerSel.call(mapZoomBehavior.transform, d3.zoomIdentity.translate(tx,ty).scale(k));
-  }
+    // mobile WebKit sometimes won't paint a transform applied before first
+    // layout/paint completes, leaving the map blank until a touch forces a
+    // reflow — force one here so it renders immediately without user input
+    void inner.offsetHeight;
+  };
+  // run after the browser's first paint pass, not synchronously during load
+  requestAnimationFrame(()=> requestAnimationFrame(applyInitialTransform));
 }
 document.getElementById("zoomIn").addEventListener("click", ()=>{
   d3.select("#mapContainer").transition().duration(220).call(mapZoomBehavior.scaleBy, 1.4);
