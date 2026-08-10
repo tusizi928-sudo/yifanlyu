@@ -278,6 +278,9 @@ footer{
 @media(max-width:640px){
   .carousel-stage{height:250px; perspective:750px; margin-top:16px;}
   .hero{padding:16px 0 6px;}
+  /* cards shrink to ~30-50px wide on mobile — place names can't fit at any
+     legible size without spilling past the card edges, so just hide them */
+  .carousel-cap{display:none;}
 }
 
 @media(max-width:400px){
