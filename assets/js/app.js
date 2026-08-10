@@ -665,31 +665,14 @@ function setupMapZoom(){
 
   containerSel.call(mapZoomBehavior);
 
-  // initial view: a broad overview showing every pin at once, not zoomed into a
-  // cluster — user can still scroll/drag/use +/- to zoom in on any region
-  const applyInitialTransform = ()=>{
-    if(!mapEntries.length) return;
-    const xs = mapEntries.map(e=>e.px), ys = mapEntries.map(e=>e.py);
-    const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
-    const pad = 110;
-    const k = Math.max(1, Math.min(2.2,
-      Math.min((MAP_W-2*pad)/Math.max(1,(maxX-minX)), (MAP_H-2*pad)/Math.max(1,(maxY-minY)))
-    ));
-    const cx = (minX+maxX)/2, cy = (minY+maxY)/2;
-    const tx = MAP_W/2 - k*cx, ty = MAP_H/2 - k*cy;
-    containerSel.call(mapZoomBehavior.transform, d3.zoomIdentity.translate(tx,ty).scale(k));
-    // mobile WebKit sometimes won't paint a transform applied before first
-    // layout/paint completes, leaving the map blank until a touch forces a
-    // reflow — force one here so it renders immediately without user input
-    void inner.offsetHeight;
-  };
-  // run after the browser's first paint pass, not synchronously during load —
-  // and re-apply a couple more times as a safety net, since some mobile
-  // browsers still won't composite the very first transform correctly
-  // (webfont swaps / late layout shifts can also throw off the first attempt)
-  requestAnimationFrame(()=> requestAnimationFrame(applyInitialTransform));
-  setTimeout(applyInitialTransform, 400);
-  window.addEventListener("load", applyInitialTransform);
+  // NOTE: we deliberately do NOT set an initial pre-zoomed transform here.
+  // Setting .style.transform via JS before the very first paint is what was
+  // causing the map to render blank on some mobile browsers until a touch
+  // forced a repaint — no amount of rAF/timeout/reflow-forcing fixed it
+  // reliably. Leaving the map at its default (untransformed, full-world)
+  // view means there is nothing for the browser to fail to paint: the SVG
+  // and pins are plain static content and always render immediately.
+  // Users can still drag or use the +/- buttons to zoom into any region.
 }
 document.getElementById("zoomIn").addEventListener("click", ()=>{
   d3.select("#mapContainer").transition().duration(220).call(mapZoomBehavior.scaleBy, 1.4);
