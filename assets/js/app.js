@@ -281,15 +281,17 @@ function buildJustifiedGallery(){
   const flushRow = (stretch)=>{
     if(!row.length) return;
     const n = row.length;
-    const h = stretch
-      ? (containerWidth - (n-1)*gap) / rowAspectSum
-      : Math.min(aimHeight, (containerWidth - (n-1)*gap) / rowAspectSum);
+    const naturalH = (containerWidth - (n-1)*gap) / rowAspectSum;
+    // a trailing row with very few/narrow photos would need to blow up huge to
+    // fill the full width — cap how far we stretch it, and center the row
+    // instead so any leftover space reads as intentional, not a missing photo
+    const h = stretch ? Math.min(naturalH, aimHeight*1.6) : Math.min(aimHeight, naturalH);
     const rowEl = document.createElement("div");
     rowEl.className = "g-row";
     // round each item's width, then correct the rounding drift on the last item
     // so the row's total width never exceeds the container (and never overflows)
     const widths = row.map(({a})=> Math.round(h*a));
-    const targetTotal = stretch ? Math.round(containerWidth - (n-1)*gap) : null;
+    const targetTotal = (stretch && h===naturalH) ? Math.round(containerWidth - (n-1)*gap) : null;
     if(targetTotal !== null){
       const drift = targetTotal - widths.reduce((s,w)=>s+w,0);
       widths[widths.length-1] += drift;
@@ -319,7 +321,7 @@ function buildJustifiedGallery(){
     const naturalWidth = rowAspectSum*aimHeight + (row.length-1)*gap;
     if(naturalWidth >= containerWidth) flushRow(true);
   });
-  flushRow(false); // trailing partial row: don't stretch it to fill the last edge
+  flushRow(true); // trailing partial row: stretch (capped) + centered, so it never leaves a bare gap
 }
 
 let galleryResizeTimer;

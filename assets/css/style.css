@@ -201,7 +201,7 @@ nav.main-nav a:hover{opacity:1;}
 .gallery{
   max-width:1400px; margin:0 auto 130px; padding:0 40px;
 }
-.g-row{display:flex; align-items:flex-start; gap:18px; margin-bottom:34px;}
+.g-row{display:flex; align-items:flex-start; justify-content:center; gap:18px; margin-bottom:34px;}
 @media(max-width:640px){.g-row{gap:10px; margin-bottom:22px;}}
 
 .g-item{cursor:pointer; flex:none; display:flex; flex-direction:column;}
