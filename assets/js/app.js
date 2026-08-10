@@ -220,7 +220,7 @@ function setRegionFilter(region_cn){
 /* ---------------- Gallery: clean uniform grid, paginated ---------------- */
 let currentList = [];
 let currentPage = 1;
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 25;
 
 function getFiltered(){
   let pool = PHOTOS;
