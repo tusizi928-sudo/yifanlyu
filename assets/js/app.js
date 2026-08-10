@@ -265,7 +265,10 @@ function buildJustifiedGallery(){
   const items = lastGalleryPageItems;
   const start = lastGalleryStart;
 
-  const containerWidth = grid.clientWidth;
+  // clientWidth includes the element's own left/right padding, but children lay
+  // out inside the content box only — subtract padding or rows run past the edge
+  const cs = getComputedStyle(grid);
+  const containerWidth = grid.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   if(!containerWidth) return;
   const gap = containerWidth < 640 ? 10 : 18;
   const aimHeight = containerWidth < 640 ? 130 : containerWidth < 900 ? 170 : 230;
@@ -283,8 +286,16 @@ function buildJustifiedGallery(){
       : Math.min(aimHeight, (containerWidth - (n-1)*gap) / rowAspectSum);
     const rowEl = document.createElement("div");
     rowEl.className = "g-row";
-    row.forEach(({p, a, globalIndex})=>{
-      const w = Math.round(h*a);
+    // round each item's width, then correct the rounding drift on the last item
+    // so the row's total width never exceeds the container (and never overflows)
+    const widths = row.map(({a})=> Math.round(h*a));
+    const targetTotal = stretch ? Math.round(containerWidth - (n-1)*gap) : null;
+    if(targetTotal !== null){
+      const drift = targetTotal - widths.reduce((s,w)=>s+w,0);
+      widths[widths.length-1] += drift;
+    }
+    row.forEach(({p, a, globalIndex}, idx)=>{
+      const w = widths[idx];
       const num = p.id.replace(/^p/,"");
       const item = document.createElement("div");
       item.className = "g-item";
