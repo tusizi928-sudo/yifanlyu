@@ -131,7 +131,11 @@ nav.main-nav a:hover{opacity:1;}
   border:1px solid var(--line);
   overflow:hidden;
 }
-.map-inner{position:absolute; inset:0; transform-origin:0 0; will-change:transform;}
+.map-inner{
+  position:absolute; inset:0; transform-origin:0 0; will-change:transform;
+  -webkit-transform:translateZ(0); transform:translateZ(0);
+  -webkit-backface-visibility:hidden; backface-visibility:hidden;
+}
 .map-container{cursor:grab;}
 .map-container:active{cursor:grabbing;}
 #mapSvg{position:absolute; inset:0; width:100%; height:100%; display:block;}
@@ -188,7 +192,7 @@ nav.main-nav a:hover{opacity:1;}
 }
 .chip:hover{border-color:var(--ink); color:var(--ink);}
 .chip.active{background:var(--ink); color:var(--bg); border-color:var(--ink);}
-.filters.collapsible{max-height:80px; overflow:hidden;}
+.filters.collapsible{max-height:118px; overflow:hidden;}
 .filters-toggle{
   display:block; width:fit-content; margin:0 auto 14px; padding:6px 16px;
   border:1px solid var(--line); background:transparent; color:var(--ink-soft);

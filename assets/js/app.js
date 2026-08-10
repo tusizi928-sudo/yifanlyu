@@ -211,11 +211,11 @@ function renderFilters(){
     });
   }
 
-  // on mobile, a long region list can run to many rows — collapse it to a
-  // couple of lines with a toggle rather than pushing the gallery way down
+  // on mobile, a long region list can run to many rows — collapse it to about
+  // 3 lines with a toggle rather than pushing the gallery way down
   if(window.innerWidth <= 640){
     const fullHeight = regionRow.scrollHeight;
-    if(fullHeight > 90){
+    if(fullHeight > 128){
       if(!regionFiltersExpanded) regionRow.classList.add("collapsible");
       const toggle = document.createElement("button");
       toggle.id = "regionFiltersToggle";
@@ -683,8 +683,13 @@ function setupMapZoom(){
     // reflow — force one here so it renders immediately without user input
     void inner.offsetHeight;
   };
-  // run after the browser's first paint pass, not synchronously during load
+  // run after the browser's first paint pass, not synchronously during load —
+  // and re-apply a couple more times as a safety net, since some mobile
+  // browsers still won't composite the very first transform correctly
+  // (webfont swaps / late layout shifts can also throw off the first attempt)
   requestAnimationFrame(()=> requestAnimationFrame(applyInitialTransform));
+  setTimeout(applyInitialTransform, 400);
+  window.addEventListener("load", applyInitialTransform);
 }
 document.getElementById("zoomIn").addEventListener("click", ()=>{
   d3.select("#mapContainer").transition().duration(220).call(mapZoomBehavior.scaleBy, 1.4);
