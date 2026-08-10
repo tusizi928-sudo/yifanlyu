@@ -72,8 +72,9 @@ nav.main-nav a:hover{opacity:1;}
 
 .carousel-stage{
   height:460px; perspective:1700px; display:flex; align-items:center; justify-content:center;
-  margin-top:30px; position:relative;
+  margin-top:30px; position:relative; cursor:grab; touch-action:pan-y;
 }
+.carousel-stage.dragging{cursor:grabbing;}
 .carousel-tilt{
   position:relative; width:1px; height:1px; transform-style:preserve-3d;
   transition:transform .3s ease-out;

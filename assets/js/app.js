@@ -99,7 +99,7 @@ function buildCarousel(shuffleMode){
     card.style.left = (-sz.w/2)+"px";
     card.style.top = (-sz.h/2)+"px";
     card.style.transform = `rotateY(${angle}deg) translateZ(${radius}px) translateY(${yOff}px)`;
-    card.innerHTML = `<div class="cc-inner"><img src="assets/img/thumb/${p.id}.jpg" loading="lazy" alt="">
+    card.innerHTML = `<div class="cc-inner"><img src="assets/img/thumb/${p.id}.jpg" loading="lazy" alt="" draggable="false">
       <div class="carousel-cap">${regionLabel(p)}</div></div>`;
     card.addEventListener("click", ()=> openLightboxFrom(carouselPhotos, i));
     ring.appendChild(card);
@@ -126,7 +126,47 @@ function refreshCarouselCaptions(){
 }
 const carouselStage = document.querySelector(".carousel-stage");
 carouselStage.addEventListener("mouseenter", ()=> carouselPaused = true);
-carouselStage.addEventListener("mouseleave", ()=>{ carouselPaused = false; tiltTarget = {x:0,y:0}; });
+carouselStage.addEventListener("mouseleave", ()=>{
+  if(!carouselDragging) carouselPaused = false; // don't resume mid-drag if the pointer slips outside
+  tiltTarget = {x:0,y:0};
+});
+
+/* ---- drag to spin the carousel by hand ---- */
+let carouselDragging = false;
+let carouselDragMoved = false;
+let carouselDragStartX = 0;
+let carouselDragStartAngle = 0;
+carouselStage.addEventListener("pointerdown", (e)=>{
+  carouselDragging = true;
+  carouselDragMoved = false;
+  carouselDragStartX = e.clientX;
+  carouselDragStartAngle = carouselAngle;
+  carouselPaused = true;
+  carouselStage.classList.add("dragging");
+});
+carouselStage.addEventListener("dragstart", (e)=> e.preventDefault());
+// listen on window (not just the stage) for move/up — otherwise releasing the
+// mouse button outside the carousel's box would leave the drag "stuck" and
+// freeze auto-rotation forever, since no pointerup would ever fire
+window.addEventListener("pointermove", (e)=>{
+  if(!carouselDragging) return;
+  const dx = e.clientX - carouselDragStartX;
+  if(Math.abs(dx) > 4) carouselDragMoved = true;
+  carouselAngle = carouselDragStartAngle + dx * 0.35;
+  applyCarouselAngle();
+});
+const endCarouselDrag = ()=>{
+  if(!carouselDragging) return;
+  carouselDragging = false;
+  carouselStage.classList.remove("dragging");
+  carouselPaused = false;
+};
+window.addEventListener("pointerup", endCarouselDrag);
+window.addEventListener("pointercancel", endCarouselDrag);
+// suppress opening the lightbox when a pointerdown turned into an actual drag
+// (capture phase, same pattern used for the video marquee — no pointer
+// capture here, since capturing on every mousedown was what broke video clicks)
+carouselStage.addEventListener("click", (e)=>{ if(carouselDragMoved){ e.stopPropagation(); e.preventDefault(); } }, true);
 
 let tiltTarget = {x:0,y:0};
 let tiltCurrent = {x:0,y:0};
