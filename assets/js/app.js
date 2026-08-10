@@ -431,14 +431,18 @@ if(videoStage){
     vDragging = true; vDragMoved = false;
     vDragStartX = e.clientX; vDragStartPos = vTrackPos;
     videoStage.classList.add("dragging");
-    videoStage.setPointerCapture(e.pointerId);
-    e.preventDefault();
+    // don't capture the pointer here — capturing on every mousedown redirects the
+    // later click event's target to videoStage instead of the panel that was
+    // actually clicked, which silently breaks click-to-open on desktop.
   });
   videoStage.addEventListener("dragstart", (e)=> e.preventDefault());
   videoStage.addEventListener("pointermove", (e)=>{
     if(!vDragging) return;
     const dx = e.clientX - vDragStartX;
-    if(Math.abs(dx) > 4) vDragMoved = true;
+    if(Math.abs(dx) > 4){
+      vDragMoved = true;
+      e.preventDefault();
+    }
     vTrackPos = vDragStartPos + dx;
     applyVideoTrackPos();
   });
