@@ -201,10 +201,12 @@ nav.main-nav a:hover{opacity:1;}
 .gallery{
   max-width:1400px; margin:0 auto 130px; padding:0 40px;
   display:grid; grid-template-columns:repeat(6,1fr); gap:26px 20px;
+  grid-auto-flow:dense;
 }
+.g-item.wide{grid-column:span 2;}
 @media(max-width:1300px){.gallery{grid-template-columns:repeat(5,1fr);}}
 @media(max-width:900px){.gallery{grid-template-columns:repeat(3,1fr);}}
-@media(max-width:600px){.gallery{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.gallery{grid-template-columns:repeat(2,1fr);} .g-item.wide{grid-column:span 2;}}
 
 .g-item{cursor:pointer;}
 .g-item .imgwrap{aspect-ratio:3/4; overflow:hidden; background:#ddd;}

@@ -251,10 +251,11 @@ function renderGallery(){
     const globalIndex = start + i;
     const num = p.id.replace(/^p/,"");
     const item = document.createElement("div");
-    item.className = "g-item";
-    // crop landscape photos to 16:9 and portrait/square photos to 3:4 —
-    // forcing every photo into one fixed ratio was cropping wide shots badly
+    // crop landscape photos to 16:9 and portrait/square photos to 3:4 — and give
+    // landscape items 2 grid columns so they occupy roughly the space of two
+    // portrait cells instead of looking squeezed into one narrow column
     const isLandscape = p.w > p.h;
+    item.className = "g-item" + (isLandscape ? " wide" : "");
     const ratio = isLandscape ? "16/9" : "3/4";
     item.innerHTML = `<div class="imgwrap" style="aspect-ratio:${ratio}"><img src="assets/img/thumb/${p.id}.jpg" loading="lazy" alt="${regionLabel(p)}"></div>
       <div class="g-cap"><div class="name">${regionLabel(p)}</div><div class="num">#${num}${p.year? " · "+p.year:""}</div></div>`;
