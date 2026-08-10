@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yifan的摄影集</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="brand">
+    <div class="name" data-i18n="brandName">yifan的摄影集</div>
+  </div>
+  <nav class="main-nav">
+    <a href="#map" data-i18n="navMap">足迹</a>
+    <a href="#explore-head" data-i18n="navExplore">作品</a>
+    <a href="#video" data-i18n="navVideo">视频</a>
+    <a href="#about" data-i18n="navAbout">关于</a>
+  </nav>
+  <div class="header-right">
+    <button id="langToggle"><span id="langCN">中</span> / <span id="langEN">EN</span></button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-top">
+    <img id="heroThumb" src="" alt="">
+    <div class="cap" data-i18n="heroTop">精选<br>合集</div>
+  </div>
+  <div class="carousel-stage">
+    <div class="carousel-tilt" id="carouselTilt">
+      <div class="carousel-ring" id="carouselRing"></div>
+    </div>
+  </div>
+  <div class="hero-controls">
+    <div class="speed-slider-wrap">
+      <span class="speed-label" data-i18n="speedLabel">速度</span>
+      <input type="range" id="speedSlider" class="speed-slider" min="0" max="100" value="25">
+      <span class="speed-pct" id="speedPct">25%</span>
+    </div>
+    <button class="chip shuffle-btn" id="shuffleBtn" data-i18n="shuffle">⟲ 换一批</button>
+  </div>
+  <div class="hero-bottom">
+    <h1 class="disp" data-i18n="heroTitle">光影札记</h1>
+    <p class="hero-desc" data-i18n="heroSub">记录旅途中的光、色彩与瞬间。</p>
+  </div>
+</section>
+
+<div class="section-head reveal" id="map">
+  <h2 class="disp" data-i18n="mapTitle">足迹</h2>
+  <div class="sub" data-i18n="mapSub">点击地图上的坐标点，查看该地作品</div>
+</div>
+<div class="map-wrap reveal">
+  <div class="map-container" id="mapContainer">
+    <div class="map-inner" id="mapInner">
+      <svg id="mapSvg" viewBox="0 0 960 560" preserveAspectRatio="xMidYMid meet"></svg>
+      <div id="mapPins"></div>
+    </div>
+    <div class="map-zoom-controls">
+      <button id="zoomIn">+</button>
+      <button id="zoomOut">&minus;</button>
+    </div>
+  </div>
+</div>
+
+<div class="section-head reveal" id="explore-head">
+  <h2 class="disp" data-i18n="exploreTitle">全部作品</h2>
+  <div class="sub" data-i18n="exploreSub">按年份 / 地点 / 风格筛选</div>
+</div>
+<div class="filters" id="yearFilters"></div>
+<div class="filters" id="regionFilters"></div>
+
+<div class="gallery-bar">
+  <div class="left" data-i18n="galleryLeft">全部照片</div>
+  <div class="center" data-i18n="galleryCenter">摄影 · 旅途 · 札记</div>
+  <div class="right" id="galleryCount">— 张</div>
+</div>
+<div class="gallery" id="gallery"></div>
+<div class="pagination" id="pagination"></div>
+
+<div class="section-head reveal" id="video">
+  <h2 class="disp" data-i18n="videoTitle">视频</h2>
+  <div class="sub" data-i18n="videoSub">独立创作与合作项目</div>
+</div>
+<div class="video-hero reveal">
+  <div class="video-carousel-stage">
+    <div class="video-carousel-track" id="videoCarouselTrack"></div>
+  </div>
+</div>
+
+<div class="section-head reveal">
+  <h2 class="disp" data-i18n="aboutTitle">关于</h2>
+</div>
+<section id="about" class="about reveal">
+  <p data-i18n="aboutText">摄影是我记录世界的方式。这里收录了这几年在旅途与日常中拍下的画面。</p>
+  <div class="contact-links">
+    <a href="mailto:yifan.lyu007@gmail.com">yifan.lyu007@gmail.com</a>
+    <span class="contact-text">WeChat: tusizi928</span>
+    <a href="https://instagram.com/111fannnn" target="_blank">Instagram: @111fannnn</a>
+  </div>
+</section>
+
+<footer>
+  <span data-i18n="footer">版权所有</span>
+  <span>© 2026 Notes in Light</span>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose">&times;</button>
+  <button class="lb-prev" id="lbPrev">&#8249;</button>
+  <div class="lb-center">
+    <img id="lbImg" src="" alt="">
+    <div class="lb-cap" id="lbCap"></div>
+    <div class="lb-palette" id="lbPalette"></div>
+  </div>
+  <button class="lb-next" id="lbNext">&#8250;</button>
+</div>
+
+<div class="lightbox" id="videoLightbox">
+  <button class="lb-close" id="vlbClose">&times;</button>
+  <div class="vlb-center">
+    <div class="vlb-player" id="vlbPlayer"></div>
+    <div class="vlb-info">
+      <h3 class="disp" id="vlbTitle"></h3>
+      <p id="vlbDesc"></p>
+    </div>
+  </div>
+</div>
+
+<script src="assets/manifest.js"></script>
+<script src="assets/regionGeo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
