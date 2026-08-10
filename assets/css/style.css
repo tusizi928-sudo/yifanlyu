@@ -124,8 +124,7 @@ nav.main-nav a:hover{opacity:1;}
 .section-head .sub{color:var(--ink-soft); font-size:12px; letter-spacing:.04em; max-width:260px; text-align:right;}
 
 /* ---------- Map ---------- */
-.map-wrap{max-width:1400px; margin:0 auto 20px; padding:0 40px;}
-.map-wrap{max-width:820px;}
+.map-wrap{max-width:1100px; margin:0 auto 20px; padding:0 40px;}
 .map-container{
   position:relative; width:100%; aspect-ratio:960/560;
   background:var(--bg);

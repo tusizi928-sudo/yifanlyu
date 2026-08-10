@@ -572,13 +572,13 @@ function setupMapZoom(){
 
   containerSel.call(mapZoomBehavior);
 
-  // initial view: framed around the visited points, but the whole world is still
-  // there — scroll/drag/buttons can zoom out to k=1 and pan anywhere
+  // initial view: a broad overview showing every pin at once, not zoomed into a
+  // cluster — user can still scroll/drag/use +/- to zoom in on any region
   if(mapEntries.length){
     const xs = mapEntries.map(e=>e.px), ys = mapEntries.map(e=>e.py);
     const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
-    const pad = 70;
-    const k = Math.max(1, Math.min(6,
+    const pad = 110;
+    const k = Math.max(1, Math.min(2.2,
       Math.min((MAP_W-2*pad)/Math.max(1,(maxX-minX)), (MAP_H-2*pad)/Math.max(1,(maxY-minY)))
     ));
     const cx = (minX+maxX)/2, cy = (minY+maxY)/2;
