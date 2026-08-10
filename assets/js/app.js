@@ -230,14 +230,16 @@ function getFiltered(){
   return pool;
 }
 
+let lastGalleryPageItems = null, lastGalleryStart = 0;
+
 function renderGallery(){
   const grid = document.getElementById("gallery");
   currentList = getFiltered();
-  grid.innerHTML = "";
   document.getElementById("galleryCount").textContent = `${currentList.length} ${LANG==="zh"?"张":"photos"}`;
 
   if(currentList.length===0){
     grid.innerHTML = `<div class="empty-msg">--</div>`;
+    lastGalleryPageItems = null;
     renderPagination(0);
     return;
   }
@@ -246,25 +248,74 @@ function renderGallery(){
   if(currentPage > totalPages) currentPage = totalPages;
   const start = (currentPage-1) * PAGE_SIZE;
   const pageItems = currentList.slice(start, start + PAGE_SIZE);
+  lastGalleryPageItems = pageItems;
+  lastGalleryStart = start;
 
-  pageItems.forEach((p, i)=>{
-    const globalIndex = start + i;
-    const num = p.id.replace(/^p/,"");
-    const item = document.createElement("div");
-    // crop landscape photos to 16:9 and portrait/square photos to 3:4 — and give
-    // landscape items 2 grid columns so they occupy roughly the space of two
-    // portrait cells instead of looking squeezed into one narrow column
-    const isLandscape = p.w > p.h;
-    item.className = "g-item" + (isLandscape ? " wide" : "");
-    const ratio = isLandscape ? "16/9" : "3/4";
-    item.innerHTML = `<div class="imgwrap" style="aspect-ratio:${ratio}"><img src="assets/img/thumb/${p.id}.jpg" loading="lazy" alt="${regionLabel(p)}"></div>
-      <div class="g-cap"><div class="name">${regionLabel(p)}</div><div class="num">#${num}${p.year? " · "+p.year:""}</div></div>`;
-    item.addEventListener("click", ()=> openLightboxFrom(currentList, globalIndex));
-    grid.appendChild(item);
-  });
-
+  buildJustifiedGallery();
   renderPagination(totalPages);
 }
+
+// Justified-row layout (like a photo-album contact sheet): each row is filled
+// edge-to-edge, every photo's own width/height ratio decides how much space it
+// takes, and every image in a row shares the exact same height — so nothing
+// ever overlaps or drifts out of alignment regardless of photo orientation.
+function buildJustifiedGallery(){
+  const grid = document.getElementById("gallery");
+  if(!lastGalleryPageItems) return;
+  const items = lastGalleryPageItems;
+  const start = lastGalleryStart;
+
+  const containerWidth = grid.clientWidth;
+  if(!containerWidth) return;
+  const gap = containerWidth < 640 ? 10 : 18;
+  const aimHeight = containerWidth < 640 ? 130 : containerWidth < 900 ? 170 : 230;
+
+  grid.innerHTML = "";
+
+  let row = [];
+  let rowAspectSum = 0;
+
+  const flushRow = (stretch)=>{
+    if(!row.length) return;
+    const n = row.length;
+    const h = stretch
+      ? (containerWidth - (n-1)*gap) / rowAspectSum
+      : Math.min(aimHeight, (containerWidth - (n-1)*gap) / rowAspectSum);
+    const rowEl = document.createElement("div");
+    rowEl.className = "g-row";
+    row.forEach(({p, a, globalIndex})=>{
+      const w = Math.round(h*a);
+      const num = p.id.replace(/^p/,"");
+      const item = document.createElement("div");
+      item.className = "g-item";
+      item.style.width = w+"px";
+      // only the image box gets the fixed row height — the caption sits below
+      // it at its own natural height, so image tops AND bottoms stay aligned
+      // across every item in the row regardless of caption line-wrapping
+      item.innerHTML = `<div class="imgwrap" style="height:${h}px"><img src="assets/img/thumb/${p.id}.jpg" loading="lazy" alt="${regionLabel(p)}"></div>
+        <div class="g-cap"><div class="name">${regionLabel(p)}</div><div class="num">#${num}${p.year? " · "+p.year:""}</div></div>`;
+      item.addEventListener("click", ()=> openLightboxFrom(currentList, globalIndex));
+      rowEl.appendChild(item);
+    });
+    grid.appendChild(rowEl);
+    row = []; rowAspectSum = 0;
+  };
+
+  items.forEach((p,i)=>{
+    const a = Math.max(0.55, Math.min(2.2, p.w/p.h)); // clamp extreme ratios so no single photo dominates a row
+    row.push({p, a, globalIndex: start+i});
+    rowAspectSum += a;
+    const naturalWidth = rowAspectSum*aimHeight + (row.length-1)*gap;
+    if(naturalWidth >= containerWidth) flushRow(true);
+  });
+  flushRow(false); // trailing partial row: don't stretch it to fill the last edge
+}
+
+let galleryResizeTimer;
+window.addEventListener("resize", ()=>{
+  clearTimeout(galleryResizeTimer);
+  galleryResizeTimer = setTimeout(()=>{ if(lastGalleryPageItems) buildJustifiedGallery(); }, 200);
+});
 
 function renderPagination(totalPages){
   const bar = document.getElementById("pagination");
