@@ -252,7 +252,11 @@ function renderGallery(){
     const num = p.id.replace(/^p/,"");
     const item = document.createElement("div");
     item.className = "g-item";
-    item.innerHTML = `<div class="imgwrap"><img src="assets/img/thumb/${p.id}.jpg" loading="lazy" alt="${regionLabel(p)}"></div>
+    // crop landscape photos to 16:9 and portrait/square photos to 3:4 —
+    // forcing every photo into one fixed ratio was cropping wide shots badly
+    const isLandscape = p.w > p.h;
+    const ratio = isLandscape ? "16/9" : "3/4";
+    item.innerHTML = `<div class="imgwrap" style="aspect-ratio:${ratio}"><img src="assets/img/thumb/${p.id}.jpg" loading="lazy" alt="${regionLabel(p)}"></div>
       <div class="g-cap"><div class="name">${regionLabel(p)}</div><div class="num">#${num}${p.year? " · "+p.year:""}</div></div>`;
     item.addEventListener("click", ()=> openLightboxFrom(currentList, globalIndex));
     grid.appendChild(item);
