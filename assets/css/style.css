@@ -192,7 +192,11 @@ nav.main-nav a:hover{opacity:1;}
 }
 .chip:hover{border-color:var(--ink); color:var(--ink);}
 .chip.active{background:var(--ink); color:var(--bg); border-color:var(--ink);}
-.filters.collapsible{max-height:118px; overflow:hidden;}
+.filters.collapsible{
+  max-height:100px; overflow:hidden; position:relative;
+  -webkit-mask-image:linear-gradient(to bottom, #000 0, #000 74px, transparent 100%);
+  mask-image:linear-gradient(to bottom, #000 0, #000 74px, transparent 100%);
+}
 .filters-toggle{
   display:block; width:fit-content; margin:0 auto 14px; padding:6px 16px;
   border:1px solid var(--line); background:transparent; color:var(--ink-soft);
